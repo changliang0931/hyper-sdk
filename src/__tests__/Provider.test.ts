@@ -4,4 +4,5 @@ test('My Greeter', async () => {
   await p.open();
   let resp = await p.getBalance(['0xf95fec9c556906cb417663c5db8c566523fe631a']);
   console.log(resp);
+  await p.destroy();
 });
