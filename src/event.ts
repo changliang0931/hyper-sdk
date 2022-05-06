@@ -10,10 +10,10 @@ export class HyperEvent {
   readonly listener: Listener;
   readonly once: boolean;
   readonly type: EventType;
-  readonly tag: String;
+  readonly tag: string;
   readonly interval: number;
   _poller: NodeJS.Timer | null;
-  constructor(type: EventType, tag: String, listener: Listener, once: boolean) {
+  constructor(type: EventType, tag: string, listener: Listener, once: boolean) {
     this.listener = listener;
     this.tag = tag;
     this.once = once;
@@ -22,7 +22,7 @@ export class HyperEvent {
     this._poller = null;
   }
 
-  on():void{
+  on(): void {
     this._poller = setInterval(() => {
       this.poll();
     }, this.interval);
@@ -30,11 +30,11 @@ export class HyperEvent {
 
   //子类需要重写这个函数
   async poll(): Promise<void> {
-    this.emit(this.tag,123);
-    if(this.once){
-        if(this._poller){
-            clearInterval(this._poller);
-        }
+    this.emit(this.tag, 123);
+    if (this.once) {
+      if (this._poller) {
+        clearInterval(this._poller);
+      }
     }
   }
 
