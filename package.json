@@ -35,6 +35,7 @@
     "lib/**/*"
   ],
   "dependencies": {
+    "gm-ts": "github:ccruquan/gm-ts",
     "ws": "^8.6.0"
   }
 }

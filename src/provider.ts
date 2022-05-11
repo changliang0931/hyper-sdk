@@ -1,4 +1,5 @@
 import {WebSocket}  from "ws";
+import {EventType, HyperEvent, Listener} from "./event";
 let NextId = 1;
 export type InflightRequest = {
   callback: (error: Error|null, result: any) => void;
@@ -9,8 +10,10 @@ export class HyperProvider {
   ws?: WebSocket;
   url: string;
   requests: { [name: string]: InflightRequest };
+  events: {[tag:string]:HyperEvent};
   constructor(url: string) {
     this.requests = {};
+    this.events = {};
     this.url = url;
   }
   open(): Promise<any> {
@@ -84,27 +87,39 @@ export class HyperProvider {
     return this.send('account_getBalance', address);
   }
 
+  subscribe(type: EventType, tag: string, listener: Listener, once: boolean, ...args: Array<any>) :void{
+    let event = new HyperEvent(type, tag, listener, once,this);
+    event.on(args);
+    this.events[tag] = event;
+    return;
+  }
+
+  unsubscribe(tag:string){
+    const event = this.events[tag];
+    event.clear();
+    delete this.events[tag];
+  }
+
   async destroy(): Promise<void> {
-      if(this.ws){
-        // Wait until we have connected before trying to disconnect
-        if (this.ws.readyState === WebSocket.CONNECTING) {
-          await new Promise((resolve) => {
-              if(this.ws){
-                this.ws.onopen = function () {
-                resolve(true);
-                };
+    if (this.ws) {
+      // Wait until we have connected before trying to disconnect
+      if (this.ws.readyState === WebSocket.CONNECTING) {
+        await new Promise((resolve) => {
+          if (this.ws) {
+            this.ws.onopen = function () {
+              resolve(true);
+            };
 
-                this.ws.onerror = function () {
-                resolve(false);
-                };
-              }
-          });
-        }
-
-        // Hangup
-        // See: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes
-        this.ws.close(1000);
+            this.ws.onerror = function () {
+              resolve(false);
+            };
+          }
+        });
       }
 
+      // Hangup
+      // See: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes
+      this.ws.close(1000);
+    }
   }
 }
