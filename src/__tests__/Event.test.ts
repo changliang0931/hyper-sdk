@@ -1,7 +1,11 @@
 import { HyperEvent, HyperTxEvent } from '../Event';
 import {HyperProvider} from "../provider";
+import {newWalletFromMnemonic} from "../wallet";
 test('My Event', () => {
-  let p = new HyperProvider('ws://192.168.4.196:6066/ws/v1/1111111');
+    const wallet = newWalletFromMnemonic(
+      'gauge hole clog property soccer idea cycle stadium utility slice hold chief',
+    );
+  let p = new HyperProvider('ws://192.168.4.196:6066/ws/v1/1111111',wallet);
   let event = new HyperTxEvent(
     'tx',
     'ToBob',

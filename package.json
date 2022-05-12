@@ -35,6 +35,7 @@
     "lib/**/*"
   ],
   "dependencies": {
+    "bip39": "^3.0.4",
     "gm-ts": "github:ccruquan/gm-ts",
     "ws": "^8.6.0"
   }

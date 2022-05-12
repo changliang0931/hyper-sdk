@@ -1,5 +1,7 @@
 import {WebSocket}  from "ws";
 import {EventType, HyperEvent, Listener} from "./event";
+import { HyperWallet } from "./wallet";
+
 let NextId = 1;
 export type InflightRequest = {
   callback: (error: Error|null, result: any) => void;
@@ -11,10 +13,14 @@ export class HyperProvider {
   url: string;
   requests: { [name: string]: InflightRequest };
   events: {[tag:string]:HyperEvent};
-  constructor(url: string) {
+  wallet:HyperWallet;
+  address:string|null;
+  constructor(url: string,wallet:HyperWallet) {
     this.requests = {};
     this.events = {};
     this.url = url;
+    this.wallet = wallet;
+    this.address = null;
   }
   open(): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -83,8 +89,32 @@ export class HyperProvider {
     });
   }
 
+  async getAddress():Promise<string>{
+    if(this.address) return this.address;
+    const publicKey = this.wallet.getPublicKey();
+    const addresses = await (this.send('account_getSm2Address',[publicKey]) as Promise<string[]>);
+    return addresses[0];
+  }
+
   getBalance(address: string[]): Promise<any> {
     return this.send('account_getBalance', address);
+  }
+
+  //此接口需要组织各式各样的交易，待细化
+  async buildUnsignedTx():Promise<string>{
+    //需要调用RPC接口组织待签名交易
+    return "aabbccdd";
+  }
+
+  async signTx(msg:string):Promise<string>{
+    const sig =  this.wallet.sign(msg);
+    //需要调用RPC接口组织Raw交易
+    return sig + "11223344";
+  }
+
+  async broadcastTx(raw:string):Promise<string>{
+    //需要调用RPC接口广播交易
+    return "11223344"; //txid
   }
 
   subscribe(type: EventType, tag: string, listener: Listener, once: boolean, ...args: Array<any>) :void{
