@@ -7,6 +7,7 @@ export type EventType = "tx"|"block"|"network";
 
 export type Listener = (...args: Array<any>) => void;
 
+//这应该是一个abstract类
 export class HyperEvent {
   readonly listener: Listener;
   readonly once: boolean;
@@ -57,6 +58,7 @@ export class HyperEvent {
 
 export class HyperTxEvent extends HyperEvent{
     async poll(...args: Array<any>): Promise<void> {
+      //需要调rpc接口具体实现
       let c = args[0]+1;
       if(c == args[0] + 10){
           this.emit(this.tag, c);
